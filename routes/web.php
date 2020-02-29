@@ -13,6 +13,6 @@
 
 
 Route::get('/', 'PagesController@root')->name('home');
-
-Auth::routes();
+//开启邮箱验证
+Auth::routes(['verify' => true]);
 
