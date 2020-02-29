@@ -11,8 +11,8 @@
 |
 */
 
-//Route::get('/', function () {
-//    return view('');
-//});
 
 Route::get('/', 'PagesController@root')->name('home');
+
+Auth::routes();
+
