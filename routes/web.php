@@ -17,6 +17,11 @@ Route::get('/', 'PagesController@root')->name('home');
 Auth::routes(['verify' => true]);
 //需要登录成功才能访问
 Route::group(['middleware' => ['auth', 'verified']], function () {
+    //地址列表；
     Route::get('user_address', 'UserAddressesController@index')->name('user_address.index');
+    //新建地址页面;
+    Route::get('user_address/create', 'UserAddressesController@create')->name('user_address.create');
+    //保存地址
+    Route::post('user_address', 'UserAddressesController@store')->name('user_address.store');
 });
 
