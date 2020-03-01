@@ -25,6 +25,7 @@ class UserAddressesController extends Controller
     {
         return view('user_addresses.create_and_edit', ['address' => new UserAddress()]);
     }
+
     //保存收货地址
     public function store(UserAddressRequest $request)
     {
@@ -32,5 +33,29 @@ class UserAddressesController extends Controller
             'province', 'city', 'district', 'address', 'zip', 'contact_name', 'contact_phone'
         ]));
         return redirect()->route('user_address.index');
+    }
+
+    //修改地址页面
+    public function edit(UserAddress $user_address)
+    {
+        return view('user_addresses.create_and_edit', ['address' => $user_address]);
+    }
+
+    //保存地址页面
+    public function update(UserAddress $userAddress, UserAddressRequest $request)
+    {
+        $userAddress->update($request->only([
+            'province', 'city', 'district', 'address', 'zip', 'contact_name', 'contact_phone'
+        ]));
+        return redirect()->route('user_address.index');
+    }
+
+    //删除地址
+    public function destroy(UserAddress $user_address)
+    {
+        $this->authorize('own', $user_address);
+        $user_address->delete();
+//        return redirect()->route('user_address.index');
+        return [];
     }
 }
