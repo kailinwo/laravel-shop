@@ -12,7 +12,8 @@
 */
 
 
-Route::get('/', 'PagesController@root')->name('home');
+Route::redirect('/', '/products')->name('root');
+Route::get('products','ProductsController@index')->name('products.index');
 //开启邮箱验证
 Auth::routes(['verify' => true]);
 //需要登录成功才能访问

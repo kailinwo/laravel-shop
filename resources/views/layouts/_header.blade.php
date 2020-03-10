@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light navbar-static-top">
     <div class="container">
         {{--brand image--}}
-        <a href="{{ route('home') }}" class="navbar-brand">
+        <a href="{{ route('root') }}" class="navbar-brand">
             Kara Shop
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
