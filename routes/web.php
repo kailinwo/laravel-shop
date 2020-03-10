@@ -14,7 +14,8 @@
 
 Route::redirect('/', '/products')->name('root');
 Route::get('products', 'ProductsController@index')->name('products.index');
-Route::get('products/{product}', 'ProductsController@show')->name('products.show');
+//商品详情的页面，与 商品的我的收藏页面路由规则冲突，使用where（）搭配正则匹配即可解决此问题
+Route::get('products/{product}', 'ProductsController@show')->name('products.show')->where(['product'=>'[0-9]+']);
 //开启邮箱验证
 Auth::routes(['verify' => true]);
 //需要登录成功才能访问
@@ -33,7 +34,9 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::delete('user_address/{user_address}', 'UserAddressesController@destroy')->name('user_address.delete');
 
     //添加收藏
-    Route::post('products/{product}/favorite','ProductsController@favor')->name('products.favor');
-    Route::delete('products/{product}/favorite','ProductsController@disfavor')->name('products.disfavor');
+    Route::post('products/{product}/favorite', 'ProductsController@favor')->name('products.favor');
+    Route::delete('products/{product}/favorite', 'ProductsController@disfavor')->name('products.disfavor');
+    //我的收藏
+    Route::get('products/favorites', 'ProductsController@favorites')->name('products.favorites');
 });
 
