@@ -54,7 +54,7 @@ body {
 
 /*商品列表的样式*/
 .products-index-page {
-    .pagination{
+    .pagination {
         margin-right: 5px;
     }
     .products-list {
@@ -101,7 +101,7 @@ body {
                         color: #38b;
                         font-weight: bold;
                     }
-                    &>div {
+                    & > div {
                         &:first-child {
                             border-right: 1px solid #eee;
                         }
@@ -113,5 +113,10 @@ body {
                 }
             }
         }
+    }
+    .search-form {
+        padding: 0 5px 10px;
+        margin-bottom: 10px;
+        border-bottom: 1px solid #eee;
     }
 }
