@@ -13,7 +13,8 @@
 
 
 Route::redirect('/', '/products')->name('root');
-Route::get('products','ProductsController@index')->name('products.index');
+Route::get('products', 'ProductsController@index')->name('products.index');
+Route::get('products/{product}', 'ProductsController@show')->name('products.show');
 //开启邮箱验证
 Auth::routes(['verify' => true]);
 //需要登录成功才能访问
