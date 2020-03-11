@@ -54,6 +54,33 @@
                         @endforeach
                         </tbody>
                     </table>
+                    <div>
+                        <form class="form-horizontal" role="form" id="order-form">
+                            <div class="form-group row">
+                                <label class="col-form-label col-sm-3 text-md-right">选择收货地址</label>
+                                <div class="col-sm-9 col-md-7">
+                                    <select class="form-control" name="address">
+                                        @foreach ($addresses as $address)
+                                            <option
+                                                value="{{ $address->id }}">{{$address->full_address}} {{ $address->contact_name }} {{ $address->contact_phone }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-form-label col-sm-3 text-md-right">备注</label>
+                                <div class="col-md-9 col-md-7">
+                                    <textarea name="remark" class="form-control" rows="3"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="offset-sm-3 col-sm-3">
+                                    <button type="button" class="btn btn-primary btn-create-order">提交订单</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -93,6 +120,55 @@
                     $(this).prop('checked', checked);
                 })
             });
+            //监听提交订单信息
+            $('.btn-create-order').click(function () {
+                //构建请求参数，将用户选择的地址ID 和备注内容写入请求参数
+                var req = {
+                    address_id: $('#order-form').find('select[name=address]').val(),
+                    items: [],
+                    remark: $('#order-form').find('textarea[name=remark]').val(),
+                };
+                //遍历<table>中的带有 data-id 属性的 tr 标签，也就是每一个购物车中的商品sku
+                $('table tr[data-id]').each(function () {
+                    var $checkbox = $(this).find('input[name=select][type=checkbox]');
+
+                    //如果被禁用或者没有选择就跳过
+                    if ($checkbox.prop('disabled') || !$checkbox.prop('checked')) {
+                        return;
+                    }
+
+                    var $input = $(this).find('input[name=amount]');
+                    //如果用户将数量设为0 或者不是一个数字 则也跳过
+                    if ($input.val() == 0 || isNaN($input.val())) {
+                        return;
+                    }
+                    //把sku ID 和 数量存入请求参数数组中
+                    req.items.push({
+                        sku_id: $(this).data('id'),
+                        amount: $input.val(),
+                    })
+                });
+                axios.post('{{ route('orders.store') }}', req)
+                    .then(function (response) {
+                        swal('订单提交成功', '', 'success');
+                    }, function (error) {
+                        if (error.response.status === 422) {
+                            // http 状态码为 422 代表用户输入校验失败
+                            var html = '<div>';
+                            _.each(error.response.data.errors, function (errors) {
+                                _.each(errors, function (error) {
+                                    html += error + '<br>';
+                                })
+                            });
+                            html += '<div>';
+                            swal({content: $(html)[0], icon: 'error'})
+                        } else {
+                            //其它情况 应该是系统挂了
+                            swal('系统错误', '', 'error');
+                        }
+                    })
+
+            })
         })
     </script>
 @stop
