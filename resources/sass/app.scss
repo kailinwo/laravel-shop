@@ -1,6 +1,7 @@
 // Fonts
 //@import url('https://fonts.googleapis.com/css?family=Nunito');
 // Variables
+@import "~@fortawesome/fontawesome-free/css/all.css";
 @import 'variables';
 // Bootstrap
 @import '~bootstrap/scss/bootstrap';
@@ -122,7 +123,7 @@ body {
 }
 
 /*商品详情页面*/
-.products-show-page{
+.products-show-page {
     .cover {
         width: 100%;
         border: solid 1px #eee;
@@ -196,7 +197,7 @@ body {
             .btn {
                 border: 1px solid #ccc;
             }
-            .btn.active,.btn:hover {
+            .btn.active, .btn:hover {
                 margin-top: 0px !important;
                 background: #fff !important;
                 border: 2px solid red !important;
@@ -237,6 +238,53 @@ body {
         .tab-content {
             border: 1px solid #eee;
             padding: 20px;
+        }
+    }
+}
+
+/*购物车*/
+.cart-index-page {
+    .product_list {
+        .preview {
+            img {
+                max-width: 80px;
+                max-height: 80px;
+            }
+            margin-right: 20px;
+        }
+
+        .product_info {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            font-size: 12px;
+            .product_title, .sku_title, .warning {
+                display: block;
+            }
+
+            .product_title a {
+                color: #3c3c3c;
+                font-size: 14px;
+            }
+            .not_on_sale {
+                .product_title, .sku_title {
+                    text-decoration: line-through;
+                }
+                .warning {
+                    color: red;
+                }
+            }
+        }
+
+        .price {
+            font-size: 12px;
+            font-weight: 700;
+            color: #3c3c3c;
+        }
+
+        input.amount {
+            width: 60px;
+            border-radius: 0 !important;
         }
     }
 }
