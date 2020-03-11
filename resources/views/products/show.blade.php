@@ -113,5 +113,30 @@
                     });
                 })
         })
+        //加入购物车
+        $('.btn-add-to-cart').click(function () {
+            axios.post('{{ route('cart.add') }}', {
+                sku_id: $('label.active input[name=skus]').val(),
+                amount: $('.cart_amount input').val(),
+            }).then(function () {
+                swal('加入购物车成功', '', 'success');
+            }, function (error) {
+                if (error.response.status === 401) {
+                    swal('请先登录', '', 'error');
+                    // http 状态码为 422 代表用户输入校验失败
+                } else if (error.response.status === 422) {
+                    var html = '<div>';
+                    _.each(error.response.data.errors, function (errors) {
+                        _.each(errors, function (error) {
+                            html += error + '<div>';
+                        })
+                    });
+                    html += '<div>';
+                    swal({content: $(html)[0], icon: 'error'});
+                } else {
+                    swal('系统错误', '', 'error')
+                }
+            })
+        })
     </script>
 @stop
