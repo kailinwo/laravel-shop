@@ -19,6 +19,7 @@ class VerifyCsrfToken extends Middleware
      * @var array
      */
     protected $except = [
-        //
+        //支付宝那边没有csrftoken需要忽略这个地址的csrf验证
+        'payment/alipay/notify',
     ];
 }

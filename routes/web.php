@@ -50,7 +50,13 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::get('orders', 'OrdersController@index')->name('orders.index');
     //订单详情
     Route::get('orders/{order}', 'OrdersController@show')->name('orders.show');
+    //订单支付
+    Route::get('orders/{order}/alipay', 'PaymentController@payByAlipay')->name('payment.alipay');
+    //支付宝的前端回调
+    Route::get('payment/alipay/return', 'PaymentController@alipayReturn')->name('payment.alipay.return');
 });
+//支付宝的服务端回调，没有认证信息，所以不能放在需要认证的路由组里；
+Route::post('payment/alipay/notify', 'PaymentController@alipayNotify')->name('payment.alipay.notify');
 
 //Route::get('alipay',function(){
 //    return app('alipay')->web([
