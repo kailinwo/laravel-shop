@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\InternalException;
 use App\Http\Requests\OrderRequest;
+use App\Jobs\CloseOrder;
 use App\Models\Order;
 use App\Models\ProductSku;
 use App\Models\UserAddress;
@@ -64,6 +65,8 @@ class OrdersController extends Controller
             $user->cartItems()->whereIn('product_sku_id', $skuids)->delete();
             return $order;
         });
+        //创建订单的时候同时触发定时任务的脚本
+        $this->dispatch(new CloseOrder($order, config('app.order_ttl')));
         return $order;
     }
 }
