@@ -69,7 +69,7 @@
                             </div>
                             <div class="form-group row">
                                 <label class="col-form-label col-sm-3 text-md-right">备注</label>
-                                <div class="col-md-9 col-md-7">
+                                <div class="col-sm-9 col-md-7">
                                     <textarea name="remark" class="form-control" rows="3"></textarea>
                                 </div>
                             </div>
@@ -150,7 +150,9 @@
                 });
                 axios.post('{{ route('orders.store') }}', req)
                     .then(function (response) {
-                        swal('订单提交成功', '', 'success');
+                        swal('订单提交成功', '', 'success').then(() => {
+                            location.href = '/orders/' + response.data.id;
+                        });
                     }, function (error) {
                         if (error.response.status === 422) {
                             // http 状态码为 422 代表用户输入校验失败
