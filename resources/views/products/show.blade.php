@@ -60,7 +60,7 @@
                                    role="tab" data-toggle="tab" aria-selected="true">商品详情</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#product-review-tab" aria-controls="product-review-tab"
+                                <a class="nav-link" href="#product-reviews-tab" aria-controls="product-review-tab"
                                    role="tab" data-toggle="tab" aria-selected="false">用户评价</a>
                             </li>
                         </ul>
@@ -68,7 +68,32 @@
                             <div role="tabpanel" class="tab-pane active" id="product-detail-tab">
                                 {!! $product->description !!}
                             </div>
-                            <div role="tabpanel" class="tab-pane" id="product-reviews-tab"></div>
+                            <div role="tabpanel" class="tab-pane" id="product-reviews-tab">
+                                {{--评论列表开始--}}
+                                <table class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <td>用户</td>
+                                            <td>商品</td>
+                                            <td>评分</td>
+                                            <td>评价</td>
+                                            <td>时间</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    @foreach ($reviews as $review)
+                                        <tr>
+                                            <td>{{ $review->order->user->name }}</td>
+                                            <td>{{ $review->productSku->title }}</td>
+                                            <td>{{ str_repeat('★', $review->rating) }}{{ str_repeat('☆', 5 - $review->rating) }}</td>
+                                            <td>{{ $review->review }}</td>
+                                            <td>{{ $review->reviewed_at->format('Y-m-d H:i:s') }}</td>
+                                        </tr>
+                                    @endforeach
+                                    </tbody>
+                                </table>
+                                {{--评论列表结束--}}
+                            </div>
                         </div>
 
                     </div>
@@ -112,7 +137,7 @@
                         location.reload();
                     });
                 })
-        })
+        });
         //加入购物车
         $('.btn-add-to-cart').click(function () {
             axios.post('{{ route('cart.add') }}', {
@@ -139,6 +164,6 @@
                     swal('系统错误', '', 'error')
                 }
             })
-        })
+        });
     </script>
 @stop

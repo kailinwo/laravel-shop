@@ -60,6 +60,11 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     //确认收货
     Route::post('orders/{order}/received','OrdersController@received')->name('orders.received');
 
+    //评价
+    Route::get('orders/{order}/review','OrdersController@review')->name('orders.review.show');
+    //发送评价
+    Route::post('orders/{order}/review','OrdersController@sendReview')->name('orders.review.store');
+
 });
 //支付宝的服务端回调，没有认证信息，所以不能放在需要认证的路由组里；
 Route::post('payment/alipay/notify', 'PaymentController@alipayNotify')->name('payment.alipay.notify');
