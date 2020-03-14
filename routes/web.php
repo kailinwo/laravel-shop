@@ -56,6 +56,10 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::get('orders/{order}/wechat', 'PaymentController@payByWechat')->name('payment.wechat');
     //支付宝的前端回调
     Route::get('payment/alipay/return', 'PaymentController@alipayReturn')->name('payment.alipay.return');
+
+    //确认收货
+    Route::post('orders/{order}/received','OrdersController@received')->name('orders.received');
+
 });
 //支付宝的服务端回调，没有认证信息，所以不能放在需要认证的路由组里；
 Route::post('payment/alipay/notify', 'PaymentController@alipayNotify')->name('payment.alipay.notify');

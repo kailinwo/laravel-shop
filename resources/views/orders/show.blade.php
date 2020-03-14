@@ -58,6 +58,21 @@
                                 <div class="line-label">订单编号：</div>
                                 <div class="line-value">{{ $order->no }}</div>
                             </div>
+                            {{--物流状态--}}
+                            <div class="line">
+                                <div class="line-label">物流状态：</div>
+                                <div
+                                    class="line-value">{{ \App\Models\Order::$shipStatusMap[$order->ship_status] }}</div>
+                            </div>
+                            <!-- 如果有物流信息则展示 -->
+                            @if($order->ship_data)
+                                <div class="line">
+                                    <div class="line-label">物流信息：</div>
+                                    <div
+                                        class="line-value">{{ $order->ship_data['express_company'] }} {{ $order->ship_data['express_no'] }}</div>
+                                </div>
+                            @endif
+                            {{--物流状态--}}
                         </div>
                         <div class="order-summary text-right">
                             <div class="total-amount">
@@ -82,7 +97,7 @@
                             </div>
 
                             {{--支付按钮开始--}}
-                            @if(!$order->paid_at || !$order->closed)
+                            @if(!$order->paid_at && !$order->closed)
                                 <div class="payment-buttons">
                                     <a href="{{ route('payment.alipay',['order'=>$order->id]) }}"
                                        class="btn btn-primary btn-sm">支付宝支付</a>
@@ -90,6 +105,17 @@
                                 </div>
                             @endif
                             {{--支付按钮结束--}}
+                            {{--如果已经发货就展示确认收货按钮--}}
+                            @if($order->ship_status === \App\Models\Order::SHIP_STATUS_DELIVERED)
+                                <div class="receive-button">
+                                    {{--<form method="post" action="{{ route('orders.received', [$order->id]) }}">--}}
+                                    {{--<!-- csrf token 不能忘 -->--}}
+                                    {{--{{ csrf_field() }}--}}
+                                    {{--<button type="submit" class="btn btn-sm btn-success">确认收货</button>--}}
+                                    {{--</form>--}}
+                                    <button type="button" id="btn-receive" class="btn btn-sm btn-success">确认收货</button>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -99,9 +125,9 @@
 @endsection
 @section('scriptAfterJs')
     <script>
-        $(document).read(function () {
+        $(document).ready(function () {
             //微信按钮点击事件
-            $('#brn-wechat').click(function () {
+            $('#btn-wechat').click(function () {
                 swal({
                     // content 参数可以是一个 DOM 元素，这里我们用 jQuery 动态生成一个 img 标签，并通过 [0] 的方式获取到 DOM 元素
                     content: $('<img src="{{ route('payment.wechat',['order'=>$order->id]) }}">')[0],
@@ -112,6 +138,27 @@
                         location.reload();
                     }
                 })
+            });
+
+            //确认收货点击事件
+            $('#btn-receive').click(function () {
+                swal({
+                    title: "确认已经收到商品？",
+                    icon: "warning",
+                    dangerMode: true,
+                    buttons: ['取消', '确认收到'],
+                }).then(function (ret) {
+                    //如果点击取消按钮不做任何处理
+                    if (!ret) {
+                        return;
+                    }
+                    //axios 提交确认操作
+                    axios.post('{{ route('orders.received',[$order->id]) }}')
+                        .then(function () {
+                            //刷新页面
+                            location.reload();
+                        })
+                });
             });
         });
     </script>
