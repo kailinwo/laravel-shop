@@ -86,6 +86,7 @@
                                 <div class="payment-buttons">
                                     <a href="{{ route('payment.alipay',['order'=>$order->id]) }}"
                                        class="btn btn-primary btn-sm">支付宝支付</a>
+                                    <button class="btn btn-success btn-sm" id="btn-wechat">微信支付</button>
                                 </div>
                             @endif
                             {{--支付按钮结束--}}
@@ -96,3 +97,22 @@
         </div>
     </div>
 @endsection
+@section('scriptAfterJs')
+    <script>
+        $(document).read(function () {
+            //微信按钮点击事件
+            $('#brn-wechat').click(function () {
+                swal({
+                    // content 参数可以是一个 DOM 元素，这里我们用 jQuery 动态生成一个 img 标签，并通过 [0] 的方式获取到 DOM 元素
+                    content: $('<img src="{{ route('payment.wechat',['order'=>$order->id]) }}">')[0],
+                    buttons: ['关闭', '已完成付款'],
+                }).then(function (result) {
+                    //如果用户点击了 已完成付款 按钮 则重新加载页面；
+                    if (result) {
+                        location.reload();
+                    }
+                })
+            });
+        });
+    </script>
+@stop
