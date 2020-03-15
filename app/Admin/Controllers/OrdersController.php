@@ -3,6 +3,7 @@
 namespace App\Admin\Controllers;
 
 use App\Exceptions\InvalidRequestException;
+use App\Http\Requests\Admin\HandleRefundRequest;
 use App\Models\Order;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
@@ -92,5 +93,27 @@ class OrdersController extends AdminController
             'ship_data' => $data,
         ]);
         return redirect()->back();
+    }
+
+    public function handleRefund(Order $order,HandleRefundRequest $request)
+    {
+        //前提是必须申请了退款才能开始处理
+        if($order->refund_status !== Order::REFUND_STATUS_APPLIED){
+            throw new InvalidRequestException('订单状态不正确');
+        }
+        //是否同意退款
+        if($request->input('agree')){
+
+        }else{
+            $extra = $order->extra ?: [];
+            $extra['refund_disagree_reason'] = $request->input('reason');
+            //将订单状态修改为 未退款
+            $order->update([
+                'refund_status' => Order::REFUND_STATUS_PENDING,
+                'extra' => $extra,
+            ]);
+        }
+
+        return $order;
     }
 }
