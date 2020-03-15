@@ -140,6 +140,7 @@
                     address_id: $('#order-form').find('select[name=address]').val(),
                     items: [],
                     remark: $('#order-form').find('textarea[name=remark]').val(),
+                    coupon_code: $('input[name=coupon_code]').val(),
                 };
                 //遍历<table>中的带有 data-id 属性的 tr 标签，也就是每一个购物车中的商品sku
                 $('table tr[data-id]').each(function () {

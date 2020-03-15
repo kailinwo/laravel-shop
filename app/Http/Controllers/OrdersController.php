@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Events\OrderReviewed;
+use App\Exceptions\CouponCodeUnavailableException;
 use App\Exceptions\InternalException;
 use App\Exceptions\InvalidRequestException;
 use App\Http\Requests\ApplyRefundRequest;
 use App\Http\Requests\OrderRequest;
 use App\Http\Requests\SendReviewRequest;
 use App\Jobs\CloseOrder;
+use App\Models\CouponCode;
 use App\Models\Order;
 use App\Models\ProductSku;
 use App\Models\UserAddress;
@@ -34,7 +36,15 @@ class OrdersController extends Controller
         $address = UserAddress::find($request->input('address_id'));
         $remark = $request->input('remark');
         $items = $request->input('items');
-        return $orderService->store($user, $address, $remark, $items);
+        $coupon = null;
+        //如果用户提交了优惠券
+        if ($code = $request->input('coupon_code')) {
+            $coupon = CouponCode::where('code', $code)->first();
+            if (!$coupon) {
+                throw new CouponCodeUnavailableException('该优惠券不存在');
+            }
+        }
+        return $orderService->store($user, $address, $remark, $items, $coupon);
     }
 
     public function show(Order $order, Request $request)
@@ -102,13 +112,13 @@ class OrdersController extends Controller
 
     }
 
-    public function applyRefund(Order $order,ApplyRefundRequest $request)
+    public function applyRefund(Order $order, ApplyRefundRequest $request)
     {
-        $this->authorize('own',$order);
-        if(!$order->paid_at){
+        $this->authorize('own', $order);
+        if (!$order->paid_at) {
             throw new InvalidRequestException('该订单未支付，不可退款');
         }
-        if($order->refund_status !== Order::REFUND_STATUS_PENDING){
+        if ($order->refund_status !== Order::REFUND_STATUS_PENDING) {
             throw new InvalidRequestException('该订单已经申请过退款，请勿重复申请');
         }
 
