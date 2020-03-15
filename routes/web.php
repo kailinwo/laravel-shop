@@ -66,6 +66,8 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::post('orders/{order}/review','OrdersController@sendReview')->name('orders.review.store');
     //申请退款
     Route::post('orders/{order}/apply_refund','OrdersController@applyRefund')->name('orders.apply_refund');
+    //优惠券查询
+    Route::get('coupon_codes/{code}','CouponCodesController@show')->name('coupon_codes.show');
 });
 //支付宝的服务端回调，没有认证信息，所以不能放在需要认证的路由组里；
 Route::post('payment/alipay/notify', 'PaymentController@alipayNotify')->name('payment.alipay.notify');
