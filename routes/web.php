@@ -71,6 +71,8 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 Route::post('payment/alipay/notify', 'PaymentController@alipayNotify')->name('payment.alipay.notify');
 //微信的服务端回调
 Route::post('payment/wechat/notify', 'PaymentController@wechatNotify')->name('payment.wechat.notify');
+//微信的退款
+Route::post('payment/wechat/refund_notify', 'PaymentController@wechatRefundNotify')->name('payment.wechat.refund_notify');
 //Route::get('alipay',function(){
 //    return app('alipay')->web([
 //        'out_trade_no'=>time(),
