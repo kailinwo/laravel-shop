@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ProductSku;
+use App\Services\CategoryService;
 use Illuminate\Http\Request;
 
 class ProductsController extends Controller
@@ -28,16 +29,16 @@ class ProductsController extends Controller
             });
         }
         //如果有传入category_id字段那么
-        if($request->input('category_id') && $category = Category::find($request->input('category_id'))){
+        if ($request->input('category_id') && $category = Category::find($request->input('category_id'))) {
             //如果是一个父类目
-            if($category->is_directory){
+            if ($category->is_directory) {
                 // 则筛选出该父类目下所有子类目的商品
-                $builder->whereHas('category',function($query)use($category){
-                    $query->where('path','like',$category->path.$category->id.'-%');
+                $builder->whereHas('category', function ($query) use ($category) {
+                    $query->where('path', 'like', $category->path . $category->id . '-%');
                 });
-            }else{
+            } else {
                 //如果不是一个父类目 ，则直接筛选c此类目下的商品
-                $builder->where('category_id',$category->id);
+                $builder->where('category_id', $category->id);
             }
         }
 
@@ -50,14 +51,16 @@ class ProductsController extends Controller
                 }
             }
         }
+
         $products = $builder->paginate(16);
+
         return view('products.index', [
             'products' => $products,
             'filters' => [
                 'search' => $search,
                 'order' => $order
             ],
-            'category'=>$category ?? null,
+            'category' => $category ?? null,
         ]);
     }
 
