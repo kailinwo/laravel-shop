@@ -9,7 +9,7 @@ class UserAddress extends Model
     protected $fillable = [
         'province', 'city', 'district', 'address', 'zip', 'contact_name', 'contact_phone', 'last_used_at'
     ];
-
+    protected $appends = ['full_address'];
     protected $dates = ['last_used_at'];
 
     //一对多；一个用户拥有多一个地址
