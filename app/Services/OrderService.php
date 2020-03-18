@@ -14,14 +14,14 @@ use Carbon\Carbon;
 
 class OrderService
 {
-    public function store(User $user, UserAddress $address, $remark, $items,CouponCode $coupon = null)
+    public function store(User $user, UserAddress $address, $remark, $items, CouponCode $coupon = null)
     {
         //如果传入了优惠券，先检查是否可用
-        if($coupon){
+        if ($coupon) {
             $coupon->checkAvailable($user);
         }
         //开启一个数据库事务；
-        $order = \DB::transaction(function () use ($user, $address, $remark, $items,$coupon) {
+        $order = \DB::transaction(function () use ($user, $address, $remark, $items, $coupon) {
             //更新此地址的最后使用时间
             $address->update(['last_used_at' => Carbon::now()]);
             //创建一个订单
@@ -34,6 +34,7 @@ class OrderService
                 ],
                 'remark' => $remark,
                 'total_amount' => 0,
+                'type' => Order::TYPE_NORMAL,
             ]);
             //新订单创建关联到当前用户
             $order->user()->associate($user);
@@ -56,15 +57,15 @@ class OrderService
                     throw new InvalidRequestException('该商品库存不足');
                 }
             }
-            if($coupon){
+            if ($coupon) {
                 //此处已有总金额，检查是否符合优惠券规则
-                $coupon->checkAvailable($user,$totalAmount);
+                $coupon->checkAvailable($user, $totalAmount);
                 //订单金额修改为优惠后的金额
                 $totalAmount = $coupon->getAdjustedPrice($totalAmount);
                 // 将订单与优惠券关联
                 $order->couponCode()->associate($coupon);
                 //增加优惠券的用量， 需判断返回值
-                if($coupon->changeUsed() <= 0){
+                if ($coupon->changeUsed() <= 0) {
                     throw new CouponCodeUnavailableException('该优惠券已被兑完');
                 }
             }
@@ -91,14 +92,15 @@ class OrderService
             $address->update(['last_used_at' => Carbon::now()]);
             // 创建一个订单
             $order = new Order([
-                'address'      => [ // 将地址信息放入订单中
-                    'address'       => $address->full_address,
-                    'zip'           => $address->zip,
-                    'contact_name'  => $address->contact_name,
+                'address' => [ // 将地址信息放入订单中
+                    'address' => $address->full_address,
+                    'zip' => $address->zip,
+                    'contact_name' => $address->contact_name,
                     'contact_phone' => $address->contact_phone,
                 ],
-                'remark'       => '',
+                'remark' => '',
                 'total_amount' => $sku->price * $amount,
+                'type' => Order::TYPE_CROWDFUNDING,
             ]);
             // 订单关联到当前用户
             $order->user()->associate($user);
@@ -107,7 +109,7 @@ class OrderService
             // 创建一个新的订单项并与 SKU 关联
             $item = $order->items()->make([
                 'amount' => $amount,
-                'price'  => $sku->price,
+                'price' => $sku->price,
             ]);
             $item->product()->associate($sku->product_id);
             $item->productSku()->associate($sku);
