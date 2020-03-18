@@ -143,7 +143,8 @@ class OrdersController extends AdminController
                     'out_refund_no' => $refundNo,
                     // 微信支付的退款结果并不是实时返回的，而是通过退款回调来通知，因此这里需要配上退款回调接口地址
 //                    'notify_url' => 'http://requestbin.fullcontact.com/******' // 由于是开发环境，需要配成 requestbin 地址
-                    'notify_url' => route('payment.wechat.refund_notify') // 正式的地址
+//                    'notify_url' => route('payment.wechat.refund_notify') // 正式的地址
+                    'notify_url' => ngrok_url('payment.wechat.refund_notify'),
                 ]);
                 //更改 订单状态为 退款中
                 $order->update([

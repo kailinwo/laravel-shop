@@ -240,4 +240,5 @@ return [
     'log' => 'daily',
     //最多保存的日志文件个数
     'log_max_files' => 30,
+    'ngrok_url' => env('NGROK_URL'),
 ];
