@@ -14,7 +14,16 @@ class Product extends Model
         self::TYPE_CROWDFUNDING => '众筹商品',
     ];
     protected $fillable = [
-        'title', 'description', 'on_sale', 'image', 'price', 'rating', 'sold_count', 'review_count', 'type'
+        'title',
+        'long_title', // 添加 long_title 到 $fillable 属性中
+        'description',
+        'on_sale',
+        'image',
+        'price',
+        'rating',
+        'sold_count',
+        'review_count',
+        'type',
     ];
 
     protected $casts = [
