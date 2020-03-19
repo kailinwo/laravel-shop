@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\ProductSku;
 use App\SearchBuilders\ProductSearchBuilder;
 use App\Services\CategoryService;
+use App\Services\ProductService;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -255,11 +256,7 @@ class ProductsController extends Controller
         // 通过 collect 函数将返回结果转为集合，并通过集合的 pluck 方法取到返回的商品 ID 数组
         $productIds = collect($result['hits']['hits'])->pluck('_id')->all();
         // 通过 whereIn 方法从数据库中读取商品数据
-        $products = Product::query()
-            ->whereIn('id', $productIds)
-            // orderByRaw 可以让我们用原生的 SQL 来给查询结果排序
-            ->orderByRaw(sprintf("FIND_IN_SET(id,'%s')", join(',', $productIds)))
-            ->get();
+        $products = Product::query()->byIds($productIds)->get();
         // 返回一个 LengthAwarePaginator 对象
         $pager = new LengthAwarePaginator($products, $result['hits']['total']['value'], $perPage, $page, [
             'path' => route('products.index', false),
@@ -272,7 +269,7 @@ class ProductsController extends Controller
             // 使用 collect 函数将返回值转为集合
             $properties = collect($result['aggregations']['properties']['properties']['buckets'])->map(function ($bucket) {
                 return ['key' => $bucket['key'], 'values' => collect($bucket['value']['buckets'])->pluck('key')->all()];
-            })->filter(function($property) use ($propertyFilter){
+            })->filter(function ($property) use ($propertyFilter) {
                 // 过滤掉只剩下一个值 或者 已经在筛选条件里的属性
                 return count($property['values']) > 1 && !isset($propertiesFilters[$property['key']]);
             });
@@ -290,7 +287,7 @@ class ProductsController extends Controller
         ]);
     }
 
-    public function show(Product $product, Request $request)
+    public function show(Product $product, Request $request, ProductService $productService)
     {
         if (!$product->on_sale) {
             throw new InvalidRequestException("商品未上架");
@@ -307,7 +304,34 @@ class ProductsController extends Controller
             ->orderBy('reviewed_at', 'desc')
             ->limit(10)
             ->get();
-        return view('products.show', ['product' => $product, 'favored' => $favored, 'reviews' => $reviews]);
+
+        /*// 创建一个查询构造器，只搜索上架的商品，取搜索结果的前 4 个商品
+        $builder = (new ProductSearchBuilder())->onSale()->paginate(4,1);
+        // 遍历当前商品的属性
+        foreach ($product->properties as $property) {
+            // 添加到 should 条件中
+            $builder->propertyFilter($property->name, $property->value, 'should');
+        }
+        // 设置最少匹配一半属性
+        $builder->minShouldMatch(ceil(count($product->properties) / 2));
+        $params = $builder->getParams();
+        // 同时将当前商品的 ID 排除
+        $params['body']['query']['bool']['must_not'] = [['term' => ['_id' => $product->id]]];
+        // 搜索
+        $result = app('es')->search($params);
+        $similarProductIds = collect($result['hits']['hits'])->pluck('_id')->all();*/
+        $similarProductIds = $productService->getSimilarProductIds($product, 4);
+        // 根据 Elasticsearch 搜索出来的商品 ID 从数据库中读取商品数据
+        $similarProducts = Product::query()
+            ->byIds($similarProductIds)
+            ->get();
+
+        return view('products.show', [
+            'product' => $product,
+            'favored' => $favored,
+            'reviews' => $reviews,
+            'similar' => $similarProducts,
+        ]);
     }
 
     public function favor(Product $product, Request $request)

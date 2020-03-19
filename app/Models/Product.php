@@ -31,6 +31,11 @@ class Product extends Model
         'on_sale' => 'boolean',
     ];
 
+    public function scopeByIds($query,$ids)
+    {
+        return $query->whereIn('id',$ids)->orderByRaw(sprintf("FIND_IN_SET(id,'%s')",join(',',$ids)));
+    }
+
     //与商品表关联
     public function skus()
     {

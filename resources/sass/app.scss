@@ -53,12 +53,8 @@ body {
     }
 }
 
-/*商品列表的样式*/
-.products-index-page, .products-favorites-page {
-    .pagination {
-        margin-right: 5px;
-    }
-    .products-list {
+@mixin products-list {
+    .products-list{
         padding: 0 15px;
         .product-item {
             padding: 0 5px;
@@ -115,6 +111,14 @@ body {
             }
         }
     }
+}
+
+/*商品列表的样式*/
+.products-index-page, .products-favorites-page {
+    .pagination {
+        margin-right: 5px;
+    }
+    @include products-list;
     .search-form {
         padding: 0 5px 10px;
         .category-breadcrumb {
@@ -348,7 +352,15 @@ body {
     .product-description img {
         max-width: 100%;
     }
-
+    .similar-products {
+        @include products-list;
+        .title{
+            font-weight:normal;
+        }
+        .price{
+            background-color: unset;
+        }
+    }
 }
 
 /*购物车*/
