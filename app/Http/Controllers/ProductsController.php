@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ProductSku;
+use App\SearchBuilders\ProductSearchBuilder;
 use App\Services\CategoryService;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -66,6 +67,7 @@ class ProductsController extends Controller
         ]);
     }
     */
+    /*
     public function index(Request $request)
     {
         $page = $request->input('page', 1);
@@ -209,6 +211,82 @@ class ProductsController extends Controller
             'category' => $category ?? null,
             'properties' => $properties,
             'propertyFilters' => $propertiesFilters,
+        ]);
+    }
+    */
+    public function index(Request $request)
+    {
+        $page = $request->input('page', 1);
+        $perPage = 16;
+        //构建查询器
+        $builder = (new ProductSearchBuilder())->onSale()->paginate($perPage, $page);
+        //类目搜索
+        if ($request->input('category_id') && $category = Category::find($request->input('category_id'))) {
+            $builder->category($category);
+        }
+        //关键词搜索
+        if ($search = $request->input('search', '')) {
+            $builder->keywords($search);
+        }
+        //分面搜索
+        if ($search || isset($category)) {
+            $builder->aggregateProperties();
+        }
+        $propertyFilter = [];
+        // 调用查询构造器的属性筛选
+        if ($filterString = $request->input('filters')) {
+            $filterArray = explode('|', $filterString);
+            foreach ($filterArray as $filter) {
+                list($name, $value) = explode(':', $filter);
+                $propertyFilter[$name] = $value;
+                $builder->propertyFilter($name, $value);
+            }
+        }
+        //排序
+        if ($order = $request->input('order', '')) {
+            if (preg_match('/^(.+)_(asc|desc)$/', $order, $m)) {
+                if (in_array($m[1], ['price', 'rating', 'sold_count'])) {
+                    $builder->orderBy($m[1], $m[2]);
+                }
+            }
+        }
+        // 最后通过 getParams() 方法取回构造好的查询参数
+        $result = app('es')->search($builder->getParams());
+        // 通过 collect 函数将返回结果转为集合，并通过集合的 pluck 方法取到返回的商品 ID 数组
+        $productIds = collect($result['hits']['hits'])->pluck('_id')->all();
+        // 通过 whereIn 方法从数据库中读取商品数据
+        $products = Product::query()
+            ->whereIn('id', $productIds)
+            // orderByRaw 可以让我们用原生的 SQL 来给查询结果排序
+            ->orderByRaw(sprintf("FIND_IN_SET(id,'%s')", join(',', $productIds)))
+            ->get();
+        // 返回一个 LengthAwarePaginator 对象
+        $pager = new LengthAwarePaginator($products, $result['hits']['total']['value'], $perPage, $page, [
+            'path' => route('products.index', false),
+        ]);
+
+        $properties = [];
+
+        // 如果返回结果里有 aggregations 字段，说明做了分面搜索
+        if (isset($result['aggregations'])) {
+            // 使用 collect 函数将返回值转为集合
+            $properties = collect($result['aggregations']['properties']['properties']['buckets'])->map(function ($bucket) {
+                return ['key' => $bucket['key'], 'values' => collect($bucket['value']['buckets'])->pluck('key')->all()];
+            })->filter(function($property) use ($propertyFilter){
+                // 过滤掉只剩下一个值 或者 已经在筛选条件里的属性
+                return count($property['values']) > 1 && !isset($propertiesFilters[$property['key']]);
+            });
+        }
+
+        return view('products.index', [
+            'products' => $pager,
+            'filters' => [
+                'search' => $search,
+                'order' => $order
+            ],
+            'category' => $category ?? null,
+            'properties' => $properties,
+            'propertyFilters' => $propertyFilter,
         ]);
     }
 
