@@ -54,8 +54,10 @@ class ProductSearchBuilder
     //添加搜索词
     public function keywords($keywords)
     {
+        $keywords = array_filter(explode(' ', $keywords));
         // 如果参数不是数组则转为数组
-        $keywords = is_array($keywords) ? $keywords : [$keywords];
+//        $keywords = is_array($keywords) ? $keywords : [$keywords];
+        // 将搜索词根据空格拆分成数组，并过滤掉空项
         foreach ($keywords as $keyword) {
             $this->params['body']['query']['bool']['must'][] = [
                 'multi_match' => [
