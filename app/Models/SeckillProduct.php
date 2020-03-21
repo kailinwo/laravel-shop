@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class SeckillProduct extends Model
 {
     protected $fillable = ['start_at', 'end_at'];
+    public $timestamps = false;
     protected $dates = [
         'start_at', 'end_at'
     ];
@@ -22,6 +23,7 @@ class SeckillProduct extends Model
     {
         return Carbon::now()->lt($this->start_at);
     }
+
     // 定义一个名为 is_after_end 的访问器，当前时间晚于秒杀结束时间时返回 true
     public function getIsAfterEndAttribute()
     {
