@@ -9,6 +9,7 @@ use App\Exceptions\InvalidRequestException;
 use App\Http\Requests\ApplyRefundRequest;
 use App\Http\Requests\CrowdFundingOrderRequest;
 use App\Http\Requests\OrderRequest;
+use App\Http\Requests\SeckillOrderRequest;
 use App\Http\Requests\SendReviewRequest;
 use App\Jobs\CloseOrder;
 use App\Models\CouponCode;
@@ -143,11 +144,20 @@ class OrdersController extends Controller
     // 创建一个新的方法用于接受众筹商品下单请求
     public function crowdfunding(CrowdFundingOrderRequest $request, OrderService $orderService)
     {
-        $user    = $request->user();
-        $sku     = ProductSku::find($request->input('sku_id'));
+        $user = $request->user();
+        $sku = ProductSku::find($request->input('sku_id'));
         $address = UserAddress::find($request->input('address_id'));
-        $amount  = $request->input('amount');
+        $amount = $request->input('amount');
 
         return $orderService->crowdfunding($user, $address, $sku, $amount);
+    }
+
+    //用于支持秒杀的商品下单
+    public function seckill(OrderService $orderService, SeckillOrderRequest $request)
+    {
+        $user = $request->user();
+        $address = UserAddress::find($request->input('address_id'));
+        $sku = ProductSku::find($request->input('sku_id'));
+        return $orderService->seckill($user, $address, $sku);
     }
 }

@@ -70,6 +70,9 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::get('coupon_codes/{code}','CouponCodesController@show')->name('coupon_codes.show');
     //众筹订单
     Route::post('crowdfunding_orders', 'OrdersController@crowdfunding')->name('crowdfunding_orders.store');
+
+    //秒杀下订单
+    Route::post('seckill_orders','OrdersController@seckill')->name('seckill_orders.store');
 });
 //支付宝的服务端回调，没有认证信息，所以不能放在需要认证的路由组里；
 Route::post('payment/alipay/notify', 'PaymentController@alipayNotify')->name('payment.alipay.notify');
