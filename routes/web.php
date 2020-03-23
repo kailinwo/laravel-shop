@@ -12,7 +12,7 @@
 */
 
 //秒杀下订单
-Route::post('seckill_orders','OrdersController@seckill')->name('seckill_orders.store');
+Route::post('seckill_orders', 'OrdersController@seckill')->name('seckill_orders.store')->middleware('random_drop:80');
 
 Route::redirect('/', '/products')->name('root');
 Route::get('products', 'ProductsController@index')->name('products.index');
@@ -60,16 +60,16 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::get('payment/alipay/return', 'PaymentController@alipayReturn')->name('payment.alipay.return');
 
     //确认收货
-    Route::post('orders/{order}/received','OrdersController@received')->name('orders.received');
+    Route::post('orders/{order}/received', 'OrdersController@received')->name('orders.received');
 
     //评价
-    Route::get('orders/{order}/review','OrdersController@review')->name('orders.review.show');
+    Route::get('orders/{order}/review', 'OrdersController@review')->name('orders.review.show');
     //发送评价
-    Route::post('orders/{order}/review','OrdersController@sendReview')->name('orders.review.store');
+    Route::post('orders/{order}/review', 'OrdersController@sendReview')->name('orders.review.store');
     //申请退款
-    Route::post('orders/{order}/apply_refund','OrdersController@applyRefund')->name('orders.apply_refund');
+    Route::post('orders/{order}/apply_refund', 'OrdersController@applyRefund')->name('orders.apply_refund');
     //优惠券查询
-    Route::get('coupon_codes/{code}','CouponCodesController@show')->name('coupon_codes.show');
+    Route::get('coupon_codes/{code}', 'CouponCodesController@show')->name('coupon_codes.show');
     //众筹订单
     Route::post('crowdfunding_orders', 'OrdersController@crowdfunding')->name('crowdfunding_orders.store');
 
