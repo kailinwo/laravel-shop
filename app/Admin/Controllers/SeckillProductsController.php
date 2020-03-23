@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\ProductSku;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
+use Redis;
 
 class SeckillProductsController extends CommonProductsController
 {

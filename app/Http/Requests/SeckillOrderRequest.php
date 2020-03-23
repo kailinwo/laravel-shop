@@ -9,6 +9,7 @@ use App\Models\ProductSku;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Redis;
 
 class SeckillOrderRequest extends FormRequest
 {
@@ -57,7 +58,7 @@ class SeckillOrderRequest extends FormRequest
                     if ($sku->product->seckill->is_after_end) {
                         return $fail('秒杀已经结束');
                     }
-                    
+
                     if (!$user = \Auth::user()) {
                         throw new AuthenticationException('请先登录');
                     }

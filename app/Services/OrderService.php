@@ -11,6 +11,7 @@ use App\Models\ProductSku;
 use App\Models\User;
 use App\Models\UserAddress;
 use Carbon\Carbon;
+use Redis;
 
 class OrderService
 {
