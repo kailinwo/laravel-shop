@@ -9,7 +9,7 @@ use App\Models\ProductSku;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Redis;
+use Illuminate\Support\Facades\Redis;
 
 class SeckillOrderRequest extends FormRequest
 {
@@ -38,7 +38,7 @@ class SeckillOrderRequest extends FormRequest
                 'required',
                 function ($attribute, $value, $fail) {
                     //从Redis 中读取数据
-                    $stock = \Redis::get('seckill_sku_' . $value);
+                    $stock = Redis::get('seckill_sku_' . $value);
                     if (is_null($stock)) {
                         return $fail['该商品不存在'];
                     }

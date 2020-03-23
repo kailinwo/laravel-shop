@@ -6,8 +6,7 @@ use App\Models\Product;
 use App\Models\ProductSku;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
-use Redis;
-
+use Illuminate\Support\Facades\Redis;
 class SeckillProductsController extends CommonProductsController
 {
     public function getProductType()
@@ -46,10 +45,10 @@ class SeckillProductsController extends CommonProductsController
                 //如果商品是上架并且结束时间大于0
                 if ($product->on_sale && $diff > 0) {
 // 将剩余库存写入到 Redis 中，并设置该值过期时间为秒杀截止时间
-                    \Redis::setex('seckill_sku_' . $sku->id, $diff, $sku->stock);
+                    Redis::setex('seckill_sku_' . $sku->id, $diff, $sku->stock);
                 } else {
                     // 否则将该 SKU 的库存值从 Redis 中删除
-                    \Redis::del('seckill_sku_' . $sku->id);
+                    Redis::del('seckill_sku_' . $sku->id);
                 }
             });
         });

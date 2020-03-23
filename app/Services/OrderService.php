@@ -11,7 +11,7 @@ use App\Models\ProductSku;
 use App\Models\User;
 use App\Models\UserAddress;
 use Carbon\Carbon;
-use Redis;
+use Illuminate\Support\Facades\Redis;
 
 class OrderService
 {
@@ -212,7 +212,7 @@ class OrderService
             $item->save();
 
             //扣减redis的库存
-            \Redis::decr('seckill_sku_' . $sku->id);
+            Redis::decr('seckill_sku_' . $sku->id);
             return $order;
         });
         // 秒杀订单的自动关闭时间与普通订单不同

@@ -8,7 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Redis;
+use Illuminate\Support\Facades\Redis;
 class CloseOrder implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -51,7 +51,7 @@ class CloseOrder implements ShouldQueue
                 if ($item->order->type === Order::TYPE_SECKILL
                     && $item->product->on_sale
                     && !$item->product->seckill->is_after_end) {
-                    \Redis::incr('seckill_sku_' . $item->productSku->id);
+                    Redis::incr('seckill_sku_' . $item->productSku->id);
                 }
             }
             //如果有使用优惠券则将该优惠券的用量减少：
