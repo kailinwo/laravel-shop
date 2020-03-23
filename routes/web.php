@@ -11,6 +11,8 @@
 |
 */
 
+//秒杀下订单
+Route::post('seckill_orders','OrdersController@seckill')->name('seckill_orders.store');
 
 Route::redirect('/', '/products')->name('root');
 Route::get('products', 'ProductsController@index')->name('products.index');
@@ -71,8 +73,7 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     //众筹订单
     Route::post('crowdfunding_orders', 'OrdersController@crowdfunding')->name('crowdfunding_orders.store');
 
-    //秒杀下订单
-    Route::post('seckill_orders','OrdersController@seckill')->name('seckill_orders.store');
+
 });
 //支付宝的服务端回调，没有认证信息，所以不能放在需要认证的路由组里；
 Route::post('payment/alipay/notify', 'PaymentController@alipayNotify')->name('payment.alipay.notify');
